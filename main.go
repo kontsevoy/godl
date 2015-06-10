@@ -1,73 +1,63 @@
 package main
 
 import (
-	"bufio"
 	"debug/elf"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
-func Glob(pattern string, f func(string)) {
-	matches, _ := filepath.Glob(pattern)
-	for _, fp := range matches {
-		fi, err := os.Stat(fp)
-		if err == nil && fi.IsDir() == false {
-			f(fp)
-		}
-	}
+// Command line arguments:
+type Arguments struct {
+	Patterns []string
+	Force    bool
+	DryRun   bool
+	Output   string
 }
 
-func readDLConfig(pattern string) (dirs []string, err error) {
-	f := func(configFile string) {
-		fmt.Println("Reading " + configFile)
-		fd, err := os.Open(configFile)
-		if err != nil {
-			return
-		}
-		defer fd.Close()
+// ParseArgs returns Arguments structure filled with command line arguments.
+// If args are invalid, prints help and returns 'false'
+func ParseArgs() (bool, *Arguments) {
+	cfg := &Arguments{Output: "out.aci"}
 
-		sc := bufio.NewScanner(fd)
-		for sc.Scan() {
-			line := strings.Trim(sc.Text(), "\t ")
-			if len(line) == 0 || line[0] == '#' { // ignore comments and empty lines
-				continue
-			}
-
-			// found "include" directive?
-			words := strings.Fields(line)
-			if strings.ToLower(words[0]) == "include" {
-				subdirs, err := readDLConfig(words[1])
-				if err != nil && !os.IsNotExist(err) {
-					return
-				}
-				dirs = append(dirs, subdirs...)
-			}
-			dirs = append(dirs, line)
-			fmt.Println("\t" + line)
-		}
+	var f = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	f.Usage = func() {
+		fmt.Println(UsageStr)
 	}
+	f.StringVar(&cfg.Output, "o", "out.aci", "")
+	f.BoolVar(&cfg.Force, "f", false, "")
+	f.BoolVar(&cfg.DryRun, "d", false, "")
+	f.Parse(os.Args[1:])
 
-	Glob(pattern, f)
-	return dirs, err
-}
-
-func getSystemLibdirs() []string {
-	dirs, err := readDLConfig("/etc/ld.so.conf")
-	if err != nil {
-		panic(err)
+	if len(os.Args) < 2 {
+		f.Usage()
+		return false, cfg
 	}
-	return append(dirs, "/usr/lib", "/lib")
+	cfg.Patterns = f.Args()
+	return true, cfg
 }
 
 func main() {
-	var f string = '''
-	he
-	'''
-	fmt.Println(f)
+	// no arguments?
+	canRun, args := ParseArgs()
+	if !canRun {
+		return
+	}
 
-	sysDirs := getSystemLibdirs()
+	// for each pattern:
+	fl := GlobMany(args.Patterns, GlobFiles, nil)
+	for _, p := range fl {
+		fmt.Println(p)
+	}
+
+	fmt.Println("--------------")
+
+	sysDirs := GetDynLibDirs()
+	fmt.Println(sysDirs)
+
+	return
+
 	var (
 		onFile func(string)
 		deps   map[string]bool = make(map[string]bool)
@@ -102,10 +92,5 @@ func main() {
 				}
 			}
 		}
-	}
-	Glob("/bin/*", onFile)
-
-	for k, _ := range deps {
-		fmt.Println(k)
 	}
 }
