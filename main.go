@@ -47,8 +47,9 @@ func main() {
 	// the user-provided patterns:
 	deps := GetELFDependencies(args.Patterns, GetDynLibDirs())
 
-	// look at what we've got!
-	for _, p := range deps {
-		fmt.Println(p)
+	// create a directory which will hold rootfs+manifest
+	err := MakeRootFS(deps, "")
+	if err != nil {
+		fmt.Println(err.Error())
 	}
 }
