@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -10,7 +11,6 @@ import (
 type Arguments struct {
 	Patterns []string
 	Force    bool
-	DryRun   bool
 	RootFS   string
 	OutACI   string
 	Target   string
@@ -29,7 +29,6 @@ func ParseArgs() (bool, *Arguments) {
 	f.StringVar(&cfg.OutACI, "o", "out.aci", "")
 	f.StringVar(&cfg.RootFS, "r", "aci", "")
 	f.BoolVar(&cfg.Force, "f", false, "")
-	f.BoolVar(&cfg.DryRun, "d", false, "")
 	f.StringVar(&cfg.Target, "t", "", "")
 	f.StringVar(&cfg.Manifest, "m", "", "")
 	f.Parse(os.Args[1:])
@@ -43,6 +42,8 @@ func ParseArgs() (bool, *Arguments) {
 }
 
 func main() {
+	log.SetFlags(0)
+
 	// no arguments?
 	canRun, args := ParseArgs()
 	if !canRun {
@@ -56,6 +57,21 @@ func main() {
 	// create a directory which will hold rootfs+manifest
 	err := MakeRootFS(deps, args)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatal(err)
 	}
+
+	// make an ACI (if there was an option for it)
+	if args.OutACI != "" {
+		err = MakeACI(args.RootFS, args.OutACI)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// success:
+	fmt.Printf("Created RootFS in %v\n", args.RootFS)
+	if args.OutACI != "" {
+		fmt.Printf("Created ACI image: %v", args.OutACI)
+	}
+	fmt.Println("")
 }

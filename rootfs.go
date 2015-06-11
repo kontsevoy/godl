@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -51,8 +50,6 @@ func MakeRootFS(files []string, args *Arguments) (err error) {
 		// create a similar directory under rootfs, with same access flags:
 		srcDir = filepath.Dir(p)
 		dstDir = filepath.Join(rootfs, args.Target, srcDir[cutLen:])
-
-		fmt.Printf("%s ----> %s\n", srcDir, dstDir)
 
 		fi, err = os.Stat(srcDir)
 		if err != nil {

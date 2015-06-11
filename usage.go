@@ -11,14 +11,13 @@ PATTERN:
     Files and directories to pack into the ACI
 
 OPTIONS:
-    -d : dry run. (false)
-    -f : force overwrite. (false)
     -o : output (./out.aci)
     -r : output directory, what out.aci would contain (./aci)
     -t : target directory within rootfs. (/)
+    -f : force overwrite. (false)
     -m : manifest file to use (auto-generates one if missing)
 
 EXAMPLES:
-    godl -o bin.aci /bin/*
-    gold 
+    godl -o ed.aci /bin/ed
+    godl -r dir ../project/**/*
 `
