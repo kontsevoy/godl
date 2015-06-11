@@ -16,6 +16,11 @@ func GetELFDependencies(patterns []string, dlDirs []string) (retval []string) {
 	onFile = func(fp string) {
 		f, err := elf.Open(fp)
 		if err != nil {
+			// not an ELF? probaly just a data file:
+			fi, err := os.Stat(fp)
+			if err == nil && !fi.IsDir() {
+				deps[fp] = true
+			}
 			return
 		}
 		defer f.Close()

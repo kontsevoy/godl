@@ -8,40 +8,52 @@ import (
 	"path/filepath"
 )
 
-func MakeRootFS(files []string, binarypath string) (err error) {
+// MakeRootFS creates a working directory where rootfs and manifest
+// would reside. If overwrite is set, deletes a pre-existing directory
+func MakeRootFS(files []string, args *Arguments) (err error) {
 	var (
-		tempDir string
-		srcDir  string
-		dstDir  string
-		fi      os.FileInfo
+		srcDir string
+		dstDir string
+		fi     os.FileInfo
+		cutLen int
 	)
-
-	// prepare directory structure to keep our ACI content
-	if false {
-		tempDir, err := ioutil.TempDir("", "aci")
+	// overwrite?
+	if args.Force {
+		os.RemoveAll(args.RootFS)
+	}
+	err = os.MkdirAll(args.RootFS, 0771)
+	if err != nil {
+		return err
+	}
+	// create manifest and rootfs dir:
+	manifest := filepath.Join(args.RootFS, "manifest")
+	rootfs := filepath.Join(args.RootFS, "rootfs")
+	mbytes := []byte(DefaultManifest)
+	if args.Manifest != "" {
+		mbytes, err = ioutil.ReadFile(args.Manifest)
 		if err != nil {
 			return err
 		}
-		defer os.RemoveAll(tempDir)
-		// debug:
-	} else {
-		tempDir = "/tmp/aci"
-		os.RemoveAll(tempDir)
-		os.Mkdir(tempDir, 0771)
 	}
-
-	manifest := filepath.Join(tempDir, "manifest")
-	rootfs := filepath.Join(tempDir, "rootfs")
-
-	// create manifest and rootfs dir:
-	ioutil.WriteFile(manifest, []byte(DefaultManifest), 0660)
+	ioutil.WriteFile(manifest, mbytes, 0660)
 	os.Mkdir(rootfs, 0771)
 
-	// create rootfs:
+	// we need to place all found files into a target directory
+	// which isn't root. To do that, determine the common parent
+	// directory for them on this host, and "chroot" from there
+	// into args.Target
+	if args.Target != "" {
+		cutLen = len(CommonHome(files)) - 1
+	}
+
+	// populate rootfs:
 	for _, p := range files {
 		// create a similar directory under rootfs, with same access flags:
 		srcDir = filepath.Dir(p)
-		dstDir = filepath.Join(rootfs, srcDir)
+		dstDir = filepath.Join(rootfs, args.Target, srcDir[cutLen:])
+
+		fmt.Printf("%s ----> %s\n", srcDir, dstDir)
+
 		fi, err = os.Stat(srcDir)
 		if err != nil {
 			return err

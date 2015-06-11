@@ -11,21 +11,27 @@ type Arguments struct {
 	Patterns []string
 	Force    bool
 	DryRun   bool
-	Output   string
+	RootFS   string
+	OutACI   string
+	Target   string
+	Manifest string
 }
 
 // ParseArgs returns Arguments structure filled with command line arguments.
 // If args are invalid, prints help and returns 'false'
 func ParseArgs() (bool, *Arguments) {
-	cfg := &Arguments{Output: "out.aci"}
+	cfg := &Arguments{}
 
 	var f = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 	f.Usage = func() {
 		fmt.Println(UsageStr)
 	}
-	f.StringVar(&cfg.Output, "o", "out.aci", "")
+	f.StringVar(&cfg.OutACI, "o", "out.aci", "")
+	f.StringVar(&cfg.RootFS, "r", "aci", "")
 	f.BoolVar(&cfg.Force, "f", false, "")
 	f.BoolVar(&cfg.DryRun, "d", false, "")
+	f.StringVar(&cfg.Target, "t", "", "")
+	f.StringVar(&cfg.Manifest, "m", "", "")
 	f.Parse(os.Args[1:])
 
 	if len(os.Args) < 2 {
@@ -48,7 +54,7 @@ func main() {
 	deps := GetELFDependencies(args.Patterns, GetDynLibDirs())
 
 	// create a directory which will hold rootfs+manifest
-	err := MakeRootFS(deps, "")
+	err := MakeRootFS(deps, args)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
