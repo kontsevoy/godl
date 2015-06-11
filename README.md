@@ -33,16 +33,16 @@ PATTERN:
     Files and directories to pack into the ACI
 
 OPTIONS:
-    -o : output (./out.aci)
-    -r : output directory, what out.aci would contain (./aci)
+    -r : output directory which will contain rootfs + manifest (./aci)
+    -o : output ACI image (none)
     -t : target directory within rootfs. (/)
     -f : force overwrite. (false)
     -m : manifest file to use (auto-generates one if missing)
+    -i : ignore binary dependencies (false)
 
 EXAMPLES:
     godl -o ed.aci /bin/ed
     godl -r dir ../project/**/*
-
 ```
 
 It's easy to play with it, using -r option (when it genertes a rootfs directory instead of an ACI) and 

@@ -11,6 +11,7 @@ import (
 type Arguments struct {
 	Patterns []string
 	Force    bool
+	NoDeps   bool
 	RootFS   string
 	OutACI   string
 	Target   string
@@ -26,14 +27,15 @@ func ParseArgs() (bool, *Arguments) {
 	f.Usage = func() {
 		fmt.Println(UsageStr)
 	}
-	f.StringVar(&cfg.OutACI, "o", "out.aci", "")
-	f.StringVar(&cfg.RootFS, "r", "aci", "")
-	f.BoolVar(&cfg.Force, "f", false, "")
-	f.StringVar(&cfg.Target, "t", "", "")
-	f.StringVar(&cfg.Manifest, "m", "", "")
+	f.StringVar(&cfg.OutACI, "o", "", "output rootfs location")
+	f.StringVar(&cfg.RootFS, "r", "aci", "output aci image")
+	f.BoolVar(&cfg.Force, "f", false, "overwrite existing output")
+	f.BoolVar(&cfg.NoDeps, "i", false, "ignore dependencies")
+	f.StringVar(&cfg.Target, "t", "", "target directory within rootfs")
+	f.StringVar(&cfg.Manifest, "m", "", "manifest file")
 	f.Parse(os.Args[1:])
 
-	if len(os.Args) < 2 {
+	if len(f.Args()) == 0 {
 		f.Usage()
 		return false, cfg
 	}
@@ -45,14 +47,14 @@ func main() {
 	log.SetFlags(0)
 
 	// no arguments?
-	canRun, args := ParseArgs()
-	if !canRun {
+	canContinue, args := ParseArgs()
+	if !canContinue {
 		return
 	}
 
 	// get a list of dependencies (binaries and .so libs) from
 	// the user-provided patterns:
-	deps := GetELFDependencies(args.Patterns, GetDynLibDirs())
+	deps := GetELFDependencies(args, GetDynLibDirs())
 
 	// create a directory which will hold rootfs+manifest
 	err := MakeRootFS(deps, args)

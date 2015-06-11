@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-func GetELFDependencies(patterns []string, dlDirs []string) (retval []string) {
+func GetELFDependencies(args *Arguments, dlDirs []string) (retval []string) {
 	var (
 		onFile func(string)
 		deps   map[string]bool = make(map[string]bool)
@@ -14,6 +14,11 @@ func GetELFDependencies(patterns []string, dlDirs []string) (retval []string) {
 
 	// gets called on every binary:
 	onFile = func(fp string) {
+		// no need to check dependencies?
+		if args.NoDeps {
+			deps[fp] = true
+			return
+		}
 		f, err := elf.Open(fp)
 		if err != nil {
 			// not an ELF? probaly just a data file:
@@ -50,7 +55,7 @@ func GetELFDependencies(patterns []string, dlDirs []string) (retval []string) {
 	}
 
 	// process command-line args (patterns/files):
-	for _, p := range GlobMany(patterns, GlobFiles, nil) {
+	for _, p := range GlobMany(args.Patterns, GlobFiles, nil) {
 		onFile(p)
 	}
 

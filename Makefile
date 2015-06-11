@@ -1,0 +1,3 @@
+godl: *.go
+	go build
+
