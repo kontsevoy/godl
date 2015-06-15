@@ -27,22 +27,23 @@ to build an ACI.
 
 ```
 USAGE:
-    godl [OPTION]... PATTERN 
+    godl [OPTION]... PATTERN PATTERN...
 
-PATTERN:
-    Files and directories to pack into the ACI
+PATTERN
+    File(s) or directories to pack into the ACI
 
 OPTIONS:
     -r : output directory which will contain rootfs + manifest (./aci)
     -o : output ACI image (none)
-    -t : target directory within rootfs. (/)
+    -t : target directory within rootfs (/)
     -f : force overwrite. (false)
     -m : manifest file to use (auto-generates one if missing)
+    -n : application name for auto-generated manifest (plugin)
     -i : ignore binary dependencies (false)
 
 EXAMPLES:
     godl -o ed.aci /bin/ed
-    godl -r dir ../project/**/*
+    godl -r dir ../project
 ```
 
 It's easy to play with it, using -r option (when it genertes a rootfs directory instead of an ACI) and 
