@@ -30,7 +30,7 @@ const (
             "value": "amd64"
         }
     ],
-    "name": "plugin",
+    "name": "%app-name%",
     "pathWhitelist": null
 }
 `

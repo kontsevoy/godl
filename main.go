@@ -16,6 +16,7 @@ type Arguments struct {
 	OutACI   string
 	Target   string
 	Manifest string
+	AppName  string
 }
 
 // ParseArgs returns Arguments structure filled with command line arguments.
@@ -33,6 +34,7 @@ func ParseArgs() (bool, *Arguments) {
 	f.BoolVar(&cfg.NoDeps, "i", false, "ignore dependencies")
 	f.StringVar(&cfg.Target, "t", "", "target directory within rootfs")
 	f.StringVar(&cfg.Manifest, "m", "", "manifest file")
+	f.StringVar(&cfg.AppName, "n", "plugin", "application name")
 	f.Parse(os.Args[1:])
 
 	if len(f.Args()) == 0 {

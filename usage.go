@@ -5,17 +5,18 @@ godl: quick&dirty ACI builder with ability to add dependencies (so-libs) to root
 If the ACI file already exists, it appends to it unless -f is given.
 
 USAGE:
-    godl [OPTION]... TARGET TARGET...
+    godl [OPTION]... PATTERN PATTERN...
 
-TARGET
+PATTERN
     File(s) or directories to pack into the ACI
 
 OPTIONS:
     -r : output directory which will contain rootfs + manifest (./aci)
     -o : output ACI image (none)
-    -t : target directory within rootfs. (/)
+    -t : target directory within rootfs (/)
     -f : force overwrite. (false)
     -m : manifest file to use (auto-generates one if missing)
+    -n : application name for auto-generated manifest (plugin)
     -i : ignore binary dependencies (false)
 
 EXAMPLES:

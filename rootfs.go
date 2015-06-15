@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // MakeRootFS creates a working directory where rootfs and manifest
@@ -27,7 +28,7 @@ func MakeRootFS(files []string, args *Arguments) (err error) {
 	// create manifest and rootfs dir:
 	manifest := filepath.Join(args.RootFS, "manifest")
 	rootfs := filepath.Join(args.RootFS, "rootfs")
-	mbytes := []byte(DefaultManifest)
+	mbytes := []byte(strings.Replace(DefaultManifest, "%app-name%", args.AppName, 1))
 	if args.Manifest != "" {
 		mbytes, err = ioutil.ReadFile(args.Manifest)
 		if err != nil {
