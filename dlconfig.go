@@ -21,7 +21,7 @@ func GetDynLibDirs() []string {
 // ParseDynLibConf reads/parses DL config files defined as a pattern
 // and returns a list of directories found in there (or an error).
 func ParseDynLibConf(pattern string) (dirs []string, err error) {
-	files := GlobMany([]string{pattern}, GlobFiles, nil)
+	files := GlobMany([]string{pattern}, nil)
 	for _, configFile := range files {
 		fd, err := os.Open(configFile)
 		if err != nil {

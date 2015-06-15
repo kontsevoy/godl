@@ -1,49 +1,44 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-const (
-	GlobDirs = 1 << iota
-	GlobFiles
-)
-
-const (
-	MaxPath = 255 // equivalent to MAX_PATH in c
-)
-
 // GlobMany takes a search pattern and returns absolute file paths that mach that
 // pattern.
-//	 - pattenrs : list of strings like "/usr/**/*" similar to filepath.Glob
-//   - mask     : GlobDirs or GlobFiles
-//   - onErr    : callback function to call when there's an error.
+//	 - targets : list of paths to glob
+//   - mask    : GlobDirs or GlobFiles
+//   - onErr   : callback function to call when there's an error.
 //                can be nil.
-func GlobMany(patterns []string, mask int, onErr func(string, error)) []string {
+func GlobMany(targets []string, onErr func(string, error)) []string {
 	rv := make([]string, 0, 20)
-	addFile := func(f string) {
-		rv = append(rv, f)
+	addFile := func(path string, fi os.FileInfo, err error) error {
+		if err != nil {
+			log.Println(err.Error())
+			return err
+		}
+		fmt.Printf("Adding %s\n", path)
+		rv = append(rv, path)
+		return err
 	}
-	for _, p := range patterns {
-		matches, _ := filepath.Glob(p)
-		for _, fp := range matches {
-			fp, _ = filepath.Abs(fp)
-			fi, err := os.Stat(fp)
+
+	for _, p := range targets {
+		// "p" is a wildcard pattern? expand it:
+		if strings.Contains(p, "*") {
+			matches, err := filepath.Glob(p)
 			if err != nil {
-				if onErr != nil {
-					onErr(fp, err)
+				// walk each match:
+				for _, p := range matches {
+					filepath.Walk(p, addFile)
 				}
-				continue
 			}
-			// dir?
-			if (mask&GlobDirs == GlobDirs) && fi.IsDir() {
-				addFile(fp)
-				// file?
-			} else if (mask&GlobFiles == GlobFiles) && !fi.IsDir() {
-				addFile(fp)
-			}
+			// path is not a wildcard, walk it:
+		} else {
+			filepath.Walk(p, addFile)
 		}
 	}
 	return rv

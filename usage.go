@@ -5,10 +5,10 @@ godl: quick&dirty ACI builder with ability to add dependencies (so-libs) to root
 If the ACI file already exists, it appends to it unless -f is given.
 
 USAGE:
-    godl [OPTION]... PATTERN 
+    godl [OPTION]... TARGET TARGET...
 
-PATTERN:
-    Files and directories to pack into the ACI
+TARGET
+    File(s) or directories to pack into the ACI
 
 OPTIONS:
     -r : output directory which will contain rootfs + manifest (./aci)
@@ -20,5 +20,5 @@ OPTIONS:
 
 EXAMPLES:
     godl -o ed.aci /bin/ed
-    godl -r dir ../project/**/*
+    godl -r dir ../project
 `

@@ -55,7 +55,7 @@ func GetELFDependencies(args *Arguments, dlDirs []string) (retval []string) {
 	}
 
 	// process command-line args (patterns/files):
-	for _, p := range GlobMany(args.Patterns, GlobFiles, nil) {
+	for _, p := range GlobMany(args.Patterns, nil) {
 		onFile(p)
 	}
 
