@@ -31,8 +31,10 @@ func GlobMany(patterns []string, mask int, onErr func(string, error)) []string {
 		for _, fp := range matches {
 			fp, _ = filepath.Abs(fp)
 			fi, err := os.Stat(fp)
-			if err != nil && onErr != nil {
-				onErr(fp, err)
+			if err != nil {
+				if onErr != nil {
+					onErr(fp, err)
+				}
 				continue
 			}
 			// dir?
