@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -21,7 +20,6 @@ func GlobMany(targets []string, onErr func(string, error)) []string {
 			log.Println(err.Error())
 			return err
 		}
-		fmt.Printf("Adding %s\n", path)
 		rv = append(rv, path)
 		return err
 	}
@@ -30,7 +28,7 @@ func GlobMany(targets []string, onErr func(string, error)) []string {
 		// "p" is a wildcard pattern? expand it:
 		if strings.Contains(p, "*") {
 			matches, err := filepath.Glob(p)
-			if err != nil {
+			if err == nil {
 				// walk each match:
 				for _, p := range matches {
 					filepath.Walk(p, addFile)

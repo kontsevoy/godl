@@ -57,6 +57,9 @@ func main() {
 	// get a list of dependencies (binaries and .so libs) from
 	// the user-provided patterns:
 	deps := GetELFDependencies(args, GetDynLibDirs())
+	for _, f := range deps {
+		fmt.Println("Adding " + f)
+	}
 
 	// create a directory which will hold rootfs+manifest
 	err := MakeRootFS(deps, args)
