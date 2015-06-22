@@ -28,7 +28,8 @@ func MakeRootFS(files []string, args *Arguments) (err error) {
 	// create manifest and rootfs dir:
 	manifest := filepath.Join(args.RootFS, "manifest")
 	rootfs := filepath.Join(args.RootFS, "rootfs")
-	mbytes := []byte(strings.Replace(DefaultManifest, "%app-name%", args.AppName, 1))
+	tmps := strings.Replace(DefaultManifest, "%app-name%", args.AppName, 1)
+	mbytes := []byte(strings.Replace(tmps, "%app-description%", args.AppDesc, 1))
 	if args.Manifest != "" {
 		mbytes, err = ioutil.ReadFile(args.Manifest)
 		if err != nil {

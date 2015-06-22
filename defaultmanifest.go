@@ -6,7 +6,12 @@ const (
 	DefaultManifest = `{
     "acKind": "ImageManifest",
     "acVersion": "0.5.2",
-    "annotations": null,
+    "annotations": [
+    	{
+			"name": "description",
+			"value": "%app-description%"
+		}
+    ],
     "app": {
         "environment": [],
         "eventHandlers": null,

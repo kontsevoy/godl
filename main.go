@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 // Command line arguments:
@@ -17,6 +19,7 @@ type Arguments struct {
 	Target   string
 	Manifest string
 	AppName  string
+	AppDesc  string
 }
 
 // ParseArgs returns Arguments structure filled with command line arguments.
@@ -34,7 +37,8 @@ func ParseArgs() (bool, *Arguments) {
 	f.BoolVar(&cfg.NoDeps, "i", false, "ignore dependencies")
 	f.StringVar(&cfg.Target, "t", "", "target directory within rootfs")
 	f.StringVar(&cfg.Manifest, "m", "", "manifest file")
-	f.StringVar(&cfg.AppName, "n", "plugin", "application name")
+	f.StringVar(&cfg.AppName, "n", "", "application name")
+	f.StringVar(&cfg.AppDesc, "d", "", "application description")
 	f.Parse(os.Args[1:])
 
 	if len(f.Args()) == 0 {
@@ -42,6 +46,15 @@ func ParseArgs() (bool, *Arguments) {
 		return false, cfg
 	}
 	cfg.Patterns = f.Args()
+
+	// no manifest specified? make sure we generate an app name (if not provided)
+	if cfg.Manifest == "" && cfg.AppName == "" {
+		if cfg.OutACI != "" {
+			cfg.AppName = strings.Split(cfg.OutACI, ".")[0]
+		} else {
+			cfg.AppName = filepath.Base(cfg.Patterns[0])
+		}
+	}
 	return true, cfg
 }
 

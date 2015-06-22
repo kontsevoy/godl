@@ -16,7 +16,8 @@ OPTIONS:
     -t : target directory within rootfs (/)
     -f : force overwrite. (false)
     -m : manifest file to use (auto-generates one if missing)
-    -n : application name for auto-generated manifest (plugin)
+    -n : application name, if no manifest given
+    -n : application description, if no manifest given
     -i : ignore binary dependencies (false)
 
 EXAMPLES:
